@@ -2,15 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/Cmdliner/streem/internal/models"
-	"github.com/Cmdliner/streem/internal/dtos"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -21,13 +17,15 @@ func main() {
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
-	// CUse the default gin router
+	// Use the default gin router
 	r := gin.Default()
 
+
 	// Server health checks
-	r.GET("/healthz", func(ctx *gin.Context) {
+/* 	r.GET("/healthz", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"success": "The Hood is up Commandliner⚡"})
 	})
+
 
 	// Register endpoint
 	r.POST("/register", func(ctx *gin.Context) {
@@ -53,7 +51,7 @@ func main() {
 		
 
 
-	})
+	}) */
 
 	// Run server
 	r.Run(":8080")
