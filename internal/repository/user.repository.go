@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	model "github.com/Cmdliner/streem/internal/model"
+	"github.com/Cmdliner/streem/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
