@@ -63,6 +63,20 @@ func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 10)
+	defer cancel()
+
+	var user model.User
+	err := r.collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *UserRepository) Update(id string, user *model.User) (*model.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()

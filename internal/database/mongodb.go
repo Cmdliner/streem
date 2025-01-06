@@ -22,5 +22,5 @@ func Connect(uri string) (*mongo.Client, error) {
 		return nil, err
 	}
 
-	return client, err
+	return client, nil
 }

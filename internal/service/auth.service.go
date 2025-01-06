@@ -14,6 +14,11 @@ type AuthService struct {
 	jwtExpiration time.Duration
 }
 
+type UserLogin struct {
+	Email string `json:"email" bson:"email"`
+	Password string `json:"password" bson:"password"`
+}
+
 func NewAuthService(userRepository *repository.UserRepository, jwtSecret string, jwtExpiration time.Duration) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
@@ -22,7 +27,7 @@ func NewAuthService(userRepository *repository.UserRepository, jwtSecret string,
 	}
 }
 
-func (s *AuthService) Register(user *model.User) (interface{}, error) {
+func (s *AuthService) Register(user *model.User) (*model.User, error) {
 
 	hashedPwd, err := util.HashPassword(user.Password)
 	if err != nil {
@@ -31,10 +36,22 @@ func (s *AuthService) Register(user *model.User) (interface{}, error) {
 	user.Password = hashedPwd
 
 	return s.userRepository.Create(user)
-
 }
 
-// func (s *AuthService) Login
 
+func (s *AuthService) Login(loginData *UserLogin) (string, error) { 
+	user, err := s.userRepository.GetByEmail(loginData.Email)
+	if err != nil {
+		return "", err
+	}
 
-func (s *AuthService) Login() {}
+	pwdMatch := util.CheckPasswordHash(loginData.Password, user.Password)
+	if !pwdMatch {
+		return "", err
+	}
+	// !todo => Create auth token and return
+	
+	
+
+	return "nlsnfvjlnerlejrleklkrjelkjr", nil
+}
