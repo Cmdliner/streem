@@ -44,7 +44,7 @@ func (r *AuthHandler) Login(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err})
 	}
 
-	c.Header("Authorization", authToken)
-	c.IndentedJSON(http.StatusOK, gin.H{"success": true, "message": "User login successful"})
+	c.SetCookie("authCookie", authToken, 90000, "/", "http://localhost", false, true)
+	c.IndentedJSON(http.StatusOK, gin.H{"success": true, "message": "User login successful", "token": authToken})
 }
 
