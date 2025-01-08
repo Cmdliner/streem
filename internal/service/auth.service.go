@@ -6,6 +6,8 @@ import (
 	"github.com/Cmdliner/streem/internal/model"
 	"github.com/Cmdliner/streem/internal/repository"
 	"github.com/Cmdliner/streem/internal/util"
+	"github.com/golang-jwt/jwt"
+	// "github.com/golang-jwt/jwt"
 )
 
 type AuthService struct {
@@ -49,9 +51,12 @@ func (s *AuthService) Login(loginData *UserLogin) (string, error) {
 	if !pwdMatch {
 		return "", err
 	}
-	// !todo => Create auth token and return
-	
-	
 
-	return "nlsnfvjlnerlejrleklkrjelkjr", nil
+	// Create auth token and return
+	authToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"exp": time.Now().Add(s.jwtExpiration).Unix(),
+	})
+	
+	return authToken.SignedString([]byte(s.jwtSecret))
 }
