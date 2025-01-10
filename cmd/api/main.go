@@ -39,9 +39,10 @@ func main() {
 
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(client.Database(cfg.MongoDB.Name))
+	otpRepo := repository.NewOtpRepository(client.Database(cfg.MongoDB.Name))
 
 	// Initialize services
-	authService := service.NewAuthService(userRepo, cfg.JWT.Secret, time.Duration(cfg.JWT.ExpirationHours))
+	authService := service.NewAuthService(userRepo, otpRepo, cfg.JWT.Secret, time.Duration(cfg.JWT.ExpirationHours))
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService)
@@ -68,7 +69,7 @@ func main() {
 	log.Println("Shutting down server...")
 
 	// The context is used to inform the server it has 5 seconds to finish
-    		// the request it is currently handling
+	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {

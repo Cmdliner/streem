@@ -7,11 +7,12 @@ import (
 	"github.com/Cmdliner/streem/internal/repository"
 	"github.com/Cmdliner/streem/internal/util"
 	"github.com/golang-jwt/jwt"
-	// "github.com/golang-jwt/jwt"
+
 )
 
 type AuthService struct {
 	userRepository *repository.UserRepository
+	otpRepository *repository.OtpRepository
 	jwtSecret string
 	jwtExpiration time.Duration
 }
@@ -21,9 +22,10 @@ type UserLogin struct {
 	Password string `json:"password" bson:"password"`
 }
 
-func NewAuthService(userRepository *repository.UserRepository, jwtSecret string, jwtExpiration time.Duration) *AuthService {
+func NewAuthService(userRepository *repository.UserRepository, otpRepository * repository.OtpRepository, jwtSecret string, jwtExpiration time.Duration) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
+		otpRepository: otpRepository,
 		jwtSecret: jwtSecret,
 		jwtExpiration: jwtExpiration,
 	}
@@ -59,4 +61,50 @@ func (s *AuthService) Login(loginData *UserLogin) (string, error) {
 	})
 	
 	return authToken.SignedString([]byte(s.jwtSecret))
+}
+
+func (s *AuthService) ForgotPassword(email string) (string, error) {
+	user, err := s.userRepository.GetByEmail(email)
+	if err != nil {
+		return "", err
+	}
+
+	// Create a new otp
+	otpCode, err := s.otpRepository.Create(user, "pwd_reset")
+	if err != nil {
+		return "", err
+	}
+
+	// !todo => Send email with otp code
+	return otpCode, nil
+}
+
+
+func (s *AuthService) UpdatePassword(email string, code string, password string) (*model.User, error) {
+	// Find user with that ID
+	user, err := s.userRepository.GetByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	// Find otp that matches kind, code and user
+	_, err = s.otpRepository.GetOne(user, code, "pwd_reset")
+	if err != nil {
+		return nil, err
+	}
+
+	// !todo => Delete otp
+
+	// Hash new password input and update in db
+	user.Password, err = util.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+	
+	user, err = s.userRepository.Update(user.ID.String(), user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

@@ -24,6 +24,8 @@ func SetupRouter(authHandler *handler.AuthHandler) *gin.Engine {
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
+		auth.POST("/forgot-password", authHandler.ForgotPassword)
+		auth.PUT("/reset-password", authHandler.ResetPassword)
 	}
 
 	return r
