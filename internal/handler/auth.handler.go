@@ -55,10 +55,10 @@ func (h *AuthHandler) ForgotPassword(c * gin.Context) {
 	code, err := h.Service.ForgotPassword(email)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "An OTP code has been sent to your email", "code": code})
 }
-
 
 func (h *AuthHandler) ResetPassword(c *gin.Context) {
 	var data dto.PasswordReset
@@ -67,6 +67,7 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 	_, err := h.Service.UpdatePassword(data.Email, data.Code, data.Password)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
