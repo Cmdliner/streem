@@ -1,2 +1,5 @@
 .env
 config.yaml
+main
+app
+*.exe

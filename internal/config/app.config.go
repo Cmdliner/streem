@@ -1,10 +1,15 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"os"
+	"strconv"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	Server struct {
-		Port string
+		Port int
 	}
 	MongoDB struct {
 		URI string
@@ -17,6 +22,32 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
+	isProdEnvironment := os.Getenv("GO_ENV") == "PRODUCTION"
+
+	if isProdEnvironment {
+		var cfg Config
+
+		envPort, err := strconv.Atoi(os.Getenv("PORT"))
+		if err != nil {
+			return nil, err
+		}
+		envMongoURI := os.Getenv("MONGO_URI")
+		envDbName := os.Getenv("DB_NAME")
+		envJwtSecret := os.Getenv("JWT_SECRET")
+		jwtExpiry, err := strconv.Atoi(os.Getenv("JWT_EXPIRES_HRS"))
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the  into config keys if they pass the checks above
+		cfg.Server.Port = envPort
+		cfg.MongoDB.URI = envMongoURI
+		cfg.MongoDB.Name = envDbName
+		cfg.JWT.Secret = envJwtSecret
+		cfg.JWT.ExpirationHours = jwtExpiry
+		return &cfg, nil
+	}
+	
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")

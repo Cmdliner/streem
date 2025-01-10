@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -49,7 +50,7 @@ func main() {
 	r := router.SetupRouter(authHandler)
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + strconv.Itoa(cfg.Server.Port),
 		Handler: r,
 	}
 
