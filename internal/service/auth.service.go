@@ -3,11 +3,11 @@ package service
 import (
 	"time"
 
+	"github.com/Cmdliner/streem/internal/config"
 	"github.com/Cmdliner/streem/internal/model"
 	"github.com/Cmdliner/streem/internal/repository"
 	"github.com/Cmdliner/streem/internal/util"
 	"github.com/golang-jwt/jwt"
-
 )
 
 type AuthService struct {
@@ -22,12 +22,12 @@ type UserLogin struct {
 	Password string `json:"password" bson:"password"`
 }
 
-func NewAuthService(userRepository *repository.UserRepository, otpRepository * repository.OtpRepository, jwtSecret string, jwtExpiration time.Duration) *AuthService {
+func NewAuthService(cfg *config.Config, userRepository *repository.UserRepository, otpRepository * repository.OtpRepository) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
 		otpRepository: otpRepository,
-		jwtSecret: jwtSecret,
-		jwtExpiration: jwtExpiration,
+		jwtSecret: cfg.JWT.Secret,
+		jwtExpiration: time.Duration(cfg.JWT.ExpirationHours),
 	}
 }
 

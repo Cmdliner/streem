@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server struct {
 		Port int
+		URI string
 	}
 	MongoDB struct {
 		URI string
@@ -31,6 +32,7 @@ func Load() (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
+		envServerUri := os.Getenv("SERVER_URI")
 		envMongoURI := os.Getenv("MONGO_URI")
 		envDbName := os.Getenv("DB_NAME")
 		envJwtSecret := os.Getenv("JWT_SECRET")
@@ -40,6 +42,7 @@ func Load() (*Config, error) {
 		}
 
 		// Set the  into config keys if they pass the checks above
+		cfg.Server.URI = envServerUri
 		cfg.Server.Port = envPort
 		cfg.MongoDB.URI = envMongoURI
 		cfg.MongoDB.Name = envDbName

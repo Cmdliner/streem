@@ -42,7 +42,7 @@ func main() {
 	otpRepo := repository.NewOtpRepository(client.Database(cfg.MongoDB.Name))
 
 	// Initialize services
-	authService := service.NewAuthService(userRepo, otpRepo, cfg.JWT.Secret, time.Duration(cfg.JWT.ExpirationHours))
+	authService := service.NewAuthService(cfg, userRepo, otpRepo)
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService)
