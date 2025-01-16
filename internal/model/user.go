@@ -14,5 +14,4 @@ type User struct {
 	VerifiedAt time.Time `json:"verified_at" bson:"verified_at"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
-
 }

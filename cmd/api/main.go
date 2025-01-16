@@ -37,6 +37,11 @@ func main() {
 
 	defer client.Disconnect(context.Background())
 
+	// Run migrations
+	if err := database.RunMigrations(client, cfg.MongoDB.Name); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(client.Database(cfg.MongoDB.Name))
 	otpRepo := repository.NewOtpRepository(client.Database(cfg.MongoDB.Name))

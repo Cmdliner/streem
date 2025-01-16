@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Cmdliner/streem/internal/model"
@@ -13,6 +14,8 @@ import (
 type UserRepository struct {
 	collection *mongo.Collection
 }
+
+var ErrDuplicateEmail = errors.New("user with that email already exists")
 
 func NewUserRepository(db *mongo.Database) *UserRepository {
 	return &UserRepository{
@@ -26,6 +29,10 @@ func (r *UserRepository) Create(user *model.User) (*model.User, error) {
 
 	result, err := r.collection.InsertOne(ctx, user)
 	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return nil, ErrDuplicateEmail
+		}
+
 		return nil, err
 	}
 

@@ -33,6 +33,18 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	registeredUser, err := h.Service.Register(&user)
 	if err != nil {
 		fmt.Print(fmt.Errorf("error: %w", err))
+
+		// Return error message if email in user
+		if err == service.ErrEmailInUse {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"Error": "Email is already in use"})
+			return
+		}
+
+		// Return err message if username in use
+		if err == service.ErrUsernameInUse {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username taken"})
+			return
+		}
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
@@ -51,6 +63,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	if err != nil {
 		fmt.Print(fmt.Errorf("error: %w", err))
+
+		// Return distinct error if its an invalid credntials error
+		if err == service.ErrInvalidCredentials {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"} )
+			return
+		}
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err})
 		return
 	}
@@ -59,13 +77,13 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err != nil {
 		fmt.Print(fmt.Errorf("error: %w", err))
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return 
+		return
 	}
 	c.SetCookie("authCookie", authToken, 90000, "/", cfg.Server.URI, false, true)
 	c.IndentedJSON(http.StatusOK, gin.H{"success": true, "message": "User login successful", "token": authToken})
 }
 
-func (h *AuthHandler) ForgotPassword(c * gin.Context) {
+func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 	var email string
 	c.BindJSON(&email)
 	code, err := h.Service.ForgotPassword(email)
