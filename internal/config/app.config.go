@@ -20,6 +20,11 @@ type Config struct {
 		Secret string
 		ExpirationHours int
 	}
+	Email struct {
+		Provider string
+		Username string
+		Password string
+	}
 }
 
 func Load() (*Config, error) {
@@ -32,16 +37,24 @@ func Load() (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		envServerUri := os.Getenv("SERVER_URI")
 		envMongoURI := os.Getenv("MONGO_URI")
 		envDbName := os.Getenv("DB_NAME")
 		envJwtSecret := os.Getenv("JWT_SECRET")
+		envEmailPass := os.Getenv("EMAIL_PASS")
+		envEmailName := os.Getenv("EMAIL_USER")
+		envEmailProvider := os.Getenv("EMAIL_PROVIDER")
+
 		jwtExpiry, err := strconv.Atoi(os.Getenv("JWT_EXPIRES_HRS"))
 		if err != nil {
 			return nil, err
 		}
 
 		// Set the  into config keys if they pass the checks above
+		cfg.Email.Provider = envEmailProvider
+		cfg.Email.Password = envEmailPass
+		cfg.Email.Username = envEmailName
 		cfg.Server.URI = envServerUri
 		cfg.Server.Port = envPort
 		cfg.MongoDB.URI = envMongoURI
@@ -66,5 +79,4 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	return &cfg, nil
-
 }

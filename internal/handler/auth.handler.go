@@ -12,12 +12,16 @@ import (
 )
 
 type AuthHandler struct {
+	Cfg *config.Config
 	Service *service.AuthService
+	EmailService *service.EmailService
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
+func NewAuthHandler(authService *service.AuthService, emailService *service.EmailService, cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
+		Cfg: cfg,
 		Service: authService,
+		EmailService: emailService,
 	}
 }
 
@@ -92,6 +96,8 @@ func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+
+	h.EmailService.SendEmail("auth@streamverse.tech", email, "Password reset", h.Cfg)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "An OTP code has been sent to your email", "code": code})
 }
 

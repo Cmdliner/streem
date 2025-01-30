@@ -48,9 +48,10 @@ func main() {
 
 	// Initialize services
 	authService := service.NewAuthService(cfg, userRepo, otpRepo)
+	emailService := service.NewEmailService(cfg)
 
 	// Initialize handlers
-	authHandler := handler.NewAuthHandler(authService)
+	authHandler := handler.NewAuthHandler(authService, emailService, cfg)
 
 	// Setup router
 	r := router.SetupRouter(authHandler)
