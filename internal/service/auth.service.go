@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Cmdliner/streem/internal/config"
@@ -41,19 +42,14 @@ func NewAuthService(cfg *config.Config, userRepository *repository.UserRepositor
 func (s *AuthService) Register(user *model.User) (*model.User, error) {
 
 	// Check if email is in use
-	existingUser, err := s.userRepository.GetByEmail(user.Email)
-	if err != nil {
-		return nil, err
-	}
+	existingUser, _ := s.userRepository.GetByEmail(user.Email)
 	if existingUser != nil {
+		fmt.Printf("Err => %v\n", existingUser)
 		return nil, ErrEmailInUse
 	}
 
 	// Check if username is in use
-	existingUser, err = s.userRepository.GetByUsername(user.Username)
-	if err != nil {
-		return nil, err
-	}
+	existingUser, _ = s.userRepository.GetByUsername(user.Username)
 	if existingUser != nil {
 		return nil, ErrUsernameInUse
 	}
@@ -63,6 +59,7 @@ func (s *AuthService) Register(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	user.Password = hashedPwd
 
 	return s.userRepository.Create(user)

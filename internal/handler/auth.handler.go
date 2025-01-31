@@ -11,16 +11,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type RequestPayload struct {
+	Email string `json:"email"`
+}
+
 type AuthHandler struct {
-	Cfg *config.Config
-	Service *service.AuthService
+	Cfg          *config.Config
+	Service      *service.AuthService
 	EmailService *service.EmailService
 }
 
 func NewAuthHandler(authService *service.AuthService, emailService *service.EmailService, cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
-		Cfg: cfg,
-		Service: authService,
+		Cfg:          cfg,
+		Service:      authService,
 		EmailService: emailService,
 	}
 }
@@ -40,7 +44,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 		// Return error message if email in user
 		if err == service.ErrEmailInUse {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"Error": "Email is already in use"})
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Email is already in use"})
 			return
 		}
 
@@ -70,7 +74,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 		// Return distinct error if its an invalid credntials error
 		if err == service.ErrInvalidCredentials {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"} )
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
 			return
 		}
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err})
@@ -88,16 +92,23 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) ForgotPassword(c *gin.Context) {
-	var email string
-	c.BindJSON(&email)
-	code, err := h.Service.ForgotPassword(email)
+	var body RequestPayload
+	if err := c.BindJSON(&body); err != nil {
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": "Email required"})
+		return
+	}
+	code, err := h.Service.ForgotPassword(body.Email)
 	if err != nil {
 		fmt.Print(fmt.Errorf("error: %w", err))
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	h.EmailService.SendEmail("auth@streamverse.tech", email, "Password reset", h.Cfg)
+	err = h.EmailService.SendEmail("auth@streamverse.tech", body.Email, "Password reset", h.Cfg)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Error sending email"})
+	}
+
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "An OTP code has been sent to your email", "code": code})
 }
 

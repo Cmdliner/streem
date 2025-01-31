@@ -1,6 +1,10 @@
 # STREEM (The backend implementation for a  multimedia streaming service)
 
-# TODOS
+## BUGS
+- Email not passed in register and forgot password
+- Handle no documents in db error specifically in register instead of ignroing with _
+- 
+## TODOS
 - Configure cookie well (esp expiry)
 - Impl OAuth
 - Impl forget pwd with email service & OTP expiry and checks
